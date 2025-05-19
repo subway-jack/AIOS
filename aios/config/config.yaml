@@ -2,7 +2,7 @@
 
 # API Keys Configuration
 api_keys:
-  openai: ""    # OpenAI API key
+  openai: "sk-aqpbjfuhcbiyklnpzipjqgfgzjfunvlhgnercsgbcueeilke"    # OpenAI API key
   gemini: ""    # Google Gemini API key
   groq: ""      # Groq API key
   anthropic: "" # Anthropic API key
@@ -15,8 +15,9 @@ llms:
   models:
 
     # OpenAI Models
-    # - name: "gpt-4.1-mini"
-    #   backend: "openai"
+    - name: "deepseek-ai/DeepSeek-V2.5"
+      backend: "openai"
+      hostname: "https://api.siliconflow.cn/"
 
     # - name: "gpt-4.1-nano"
     #   backend: "openai"
@@ -38,13 +39,13 @@ llms:
     #   backend: "anthropic"
 
     # Ollama Models
-    - name: "qwen3:1.7b"
-      backend: "ollama"
-      hostname: "http://localhost:11434" # Make sure to run ollama server
+    # - name: "qwen3:1.7b"
+    #   backend: "ollama"
+    #   hostname: "http://localhost:11434" # Make sure to run ollama server
 
-    - name: "qwen3:4b"
-      backend: "ollama"
-      hostname: "http://localhost:11434" # Make sure to run ollama server
+    # - name: "qwen3:4b"
+    #   backend: "ollama"
+    #   hostname: "http://localhost:11434" # Make sure to run ollama server
 
     # HuggingFace Models
     # - name: "meta-llama/Llama-3.1-8B-Instruct"
@@ -80,7 +81,7 @@ scheduler:
 agent_factory:
   log_mode: "console" # choose from [console, file]
   max_workers: 64  
-  
+
 server:
   host: "localhost"
   port: 8000

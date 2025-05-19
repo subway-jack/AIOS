@@ -575,8 +575,10 @@ class LLMAdapter:
                 tools = llm_syscall.query.tools
                 message_return_type = llm_syscall.query.message_return_type
                 response_format = llm_syscall.query.response_format
-                temperature = llm_syscall.query.temperature if llm_syscall.query.temperature is not None else 1.0 # Default temp if not set
-                max_tokens = llm_syscall.query.max_new_tokens if llm_syscall.query.max_new_tokens is not None else 1000 # Default max tokens
+                # temperature = llm_syscall.query.temperature if llm_syscall.query.temperature is not None else 1.0 # Default temp if not set
+                # max_tokens = llm_syscall.query.max_new_tokens if llm_syscall.query.max_new_tokens is not None else 1000 # Default max tokens
+                temperature = getattr(llm_syscall.query, "temperature", 0.8)
+                max_tokens  = getattr(llm_syscall.query, "max_new_tokens", 1000)
 
                 # Basic validation
                 if not messages or not isinstance(messages, list):

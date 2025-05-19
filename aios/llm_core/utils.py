@@ -183,54 +183,41 @@ def decode_litellm_tool_calls(response):
               - "name": The name of the function being called.
               - "parameters": The arguments passed to the function.
               - "id": The unique identifier of the tool call.
-
-    Example:
-        ```python
-        response = <LiteLLM API response>
-        decoded_calls = decode_litellm_tool_calls(response)
-        print(decoded_calls)  
-        # Output: [{'name': 'translate', 'parameters': {'text': 'hello', 'lang': 'fr'}, 'id': 'uuid1234'}]
-        ```
     """
     decoded_tool_calls = []
-    
-    if response.choices[0].message.content is None:
-        assert response.choices[0].message.tool_calls is not None
-        tool_calls = response.choices[0].message.tool_calls
+    msg = response.choices[0].message
 
-        for tool_call in tool_calls:
-            parameters = tool_call.function.arguments
-            if isinstance(parameters, str):
-                parameters = json.loads(parameters)
-            decoded_tool_calls.append(
-                {
-                    "name": tool_call.function.name,
-                    "parameters": parameters,
-                    "id": tool_call.id
-                }
-            )
+    # 1. Prefer structured tool_calls if present
+    tool_calls = getattr(msg, "tool_calls", None)
+    if tool_calls:
+        for tc in tool_calls:
+            params = tc.function.arguments
+            if isinstance(params, str):
+                params = json.loads(params)
+            decoded_tool_calls.append({
+                "name": tc.function.name,
+                "parameters": params,
+                "id": tc.id
+            })
     else:
-        assert response.choices[0].message.content is not None
-        
-        # breakpoint()
-        tool_calls = response.choices[0].message.content
-        if isinstance(tool_calls, str):
-            tool_calls = json.loads(tool_calls)
-        
-        if not isinstance(tool_calls, list):
-            tool_calls = [tool_calls]
-            
-        for tool_call in tool_calls:
-            decoded_tool_calls.append(
-                {
-                    "name": tool_call["name"],
-                    "parameters": tool_call["arguments"],
-                    "id": generator_tool_call_id()
-                }
-            )
-        
-    return decoded_tool_calls
+        # 2. Fallback: parse JSON payload from content
+        content = msg.content or ""
+        try:
+            parsed = json.loads(content)
+        except (json.JSONDecodeError, TypeError):
+            return decoded_tool_calls
 
+        if not isinstance(parsed, list):
+            parsed = [parsed]
+
+        for call in parsed:
+            decoded_tool_calls.append({
+                "name": call.get("name"),
+                "parameters": call.get("arguments", {}),
+                "id": generator_tool_call_id()
+            })
+
+    return decoded_tool_calls
 def parse_tool_calls(message):
     """
     Parse and process tool calls from a message string.
