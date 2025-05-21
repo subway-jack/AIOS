@@ -652,7 +652,7 @@ class SyscallExecutor:
                 llm_response = self.execute_llm_syscall(agent_name, query)
                 return llm_response
             
-            elif query.action_type == "call_tool":
+            elif query.action_type == "tool_use":
                 llm_response = self.execute_llm_syscall(agent_name, query)["response"]
                 # breakpoint()
                 tool_query = ToolQuery(
